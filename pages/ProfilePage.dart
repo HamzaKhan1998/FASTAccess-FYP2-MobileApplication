@@ -5,9 +5,12 @@ import 'package:buddiesgram/pages/HomePage.dart';
 import 'package:buddiesgram/widgets/HeaderWidget.dart';
 import 'package:buddiesgram/widgets/ProgressWidget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 
@@ -24,7 +27,19 @@ class _ProfilePageState extends State<ProfilePage> {
   final String currentOnlineUserID = currentUser?.id;
 
 
-  createProfileTopView(){
+  /*void startdb() async {
+    QuerySnapshot querySnapshot = await Firestore.instance.collection('d').getDocuments();
+    User user = User.fromDocument(dataSnapShot.data);
+
+    querySnapshot.documents.forEach((document) {
+      if(document.documentID == user.subject1 || document.documentID == user.subject1 || document.documentID == user.subject1 || document.documentID == user.subject1 )
+    });
+  }*/
+
+
+
+
+  createProfileTopView() {
     return FutureBuilder(
       future: usersReference.document(widget.userProfileID).get(),
       builder: (context, dataSnapShot){
@@ -84,57 +99,73 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               Container(
                 alignment: Alignment.centerLeft,
-                padding: EdgeInsets.only(top: 3.0),
+                padding: EdgeInsets.only(top: 3.0, bottom:4),
                 child: Text(
                   user.bio, style: TextStyle(fontSize: 18.0, color: Colors.white70),
                 ),
               ),
               Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.only(top: 15.0),
+                decoration: BoxDecoration(color: Colors.brown),
+                padding: EdgeInsets.all(15.0),
                 child: Text(
                   "Schedule", style: TextStyle(fontSize: 20.0, color: Colors.white),
                 ),
               ),
               Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.only(top: 15.0),
-                child: Text(
-                  user.subject1, style: TextStyle(fontSize: 18.0, color: Colors.white70),
+                padding: EdgeInsets.all(15.0),
+                decoration: BoxDecoration(color: Colors.grey),
+                child: Text.rich(
+                  buildContainer1(user.subject1, user.timing1, user.room1), style: TextStyle(fontSize: 18.0, color: Colors.white70), textAlign: TextAlign.center,
                 ),
               ),
               Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.only(top: 15.0),
-                child: Text(
-                  user.subject2, style: TextStyle(fontSize: 18.0, color: Colors.white70),
+                padding: EdgeInsets.all(15.0),
+                decoration: BoxDecoration(color: Colors.blueGrey),
+                child: Text.rich(
+                  buildContainer1(user.subject2, user.timing2, user.room2), style: TextStyle(fontSize: 18.0, color: Colors.white70), textAlign: TextAlign.center,
                 ),
               ),
               Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.only(top: 15.0),
-                child: Text(
-                  user.subject3, style: TextStyle(fontSize: 18.0, color: Colors.white70),
+                padding: EdgeInsets.all(15.0),
+                decoration: BoxDecoration(color: Colors.grey),
+                child: Text.rich(
+                  buildContainer1(user.subject3, user.timing3, user.room3), style: TextStyle(fontSize: 18.0, color: Colors.white70), textAlign: TextAlign.center,
                 ),
               ),
               Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.only(top: 15.0),
-                child: Text(
-                  user.subject4, style: TextStyle(fontSize: 18.0, color: Colors.white70),
+                padding: EdgeInsets.all(15.0),
+                decoration: BoxDecoration(color: Colors.blueGrey),
+                child: Text.rich(
+                  buildContainer1(user.subject4, user.timing4, user.room4), style: TextStyle(fontSize: 18.0, color: Colors.white70), textAlign: TextAlign.center,
                 ),
               ),
               Container(
                 alignment: Alignment.center,
-                padding: EdgeInsets.only(top: 15.0),
-                child: Text(
-                  user.subject5, style: TextStyle(fontSize: 18.0, color: Colors.white70),
+                padding: EdgeInsets.all(15.0),
+                decoration: BoxDecoration(color: Colors.grey),
+                child: Text.rich(
+                  buildContainer1(user.subject5, user.timing5, user.room5), style: TextStyle(fontSize: 18.0, color: Colors.white70), textAlign: TextAlign.center,
                 ),
               ),
             ],
           ),
         );
         },
+    );
+  }
+
+  TextSpan buildContainer1(String s1, String t1, String r1){
+    return TextSpan(
+      children: [
+        TextSpan(text: s1),
+        TextSpan(text: '\n$t1'),
+        TextSpan(text: '\n$r1'),
+      ],
     );
   }
 
@@ -169,6 +200,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+
+
   Container createButtonTitleandFunction({String title, Function performFunction}){
     return Container(
       padding: EdgeInsets.only(top: 3.0),
@@ -187,45 +220,6 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
-  }
-
-
-
-  Subjects(){
-    return showDialog(
-        context: context,
-        builder: (context){
-          return SimpleDialog(
-            title: Text("Subjects", style: TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
-            children: <Widget>[
-              SimpleDialogOption(
-                child: Text("OOP (1-A) ", style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
-                onPressed: subject1,
-              ),
-              SimpleDialogOption(
-                child: Text("DLD (1-A) ", style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
-                onPressed: subject2,
-              ),
-              SimpleDialogOption(
-                child: Text("OOP (1-B) ", style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
-                onPressed: subject3,
-              ),
-            ],
-          );
-        }
-    );
-  }
-
-  subject1(){
-
-  }
-
-  subject2(){
-
-  }
-
-  subject3(){
-
   }
 
   Container createButtonTitleandFunction1({String title, Function performFunction}){
