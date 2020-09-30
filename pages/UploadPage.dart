@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'package:buddiesgram/pages/DB.dart';
+import 'package:path/path.dart' as path;
+import 'dart:io' as io;
 import 'package:sqflite/sqflite.dart';
 import 'package:buddiesgram/models/user.dart';
 import 'package:buddiesgram/pages/HomePage.dart';
@@ -30,6 +33,7 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
   String postID = Uuid().v4();
   TextEditingController descriptiontextEditingController = TextEditingController();
   TextEditingController locationtextEditingController = TextEditingController();
+  List<DropdownMenuItem<String>> list;
 
   captureImageWithCamera() async {
     Navigator.pop(context);
@@ -56,16 +60,19 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
   }
 
   venue1(){
+    Navigator.pop(context);
     String v = "C-301";
     locationtextEditingController.text = v;
   }
 
   venue2(){
+    Navigator.pop(context);
     String v = "C-302";
     locationtextEditingController.text = v;
   }
 
   venue3(){
+    Navigator.pop(context);
     String v = "C-303";
     locationtextEditingController.text = v;
   }
@@ -100,7 +107,7 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
       context: mContext,
       builder: (context){
         return SimpleDialog(
-          title: Text("New Post", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
+          title: Text("Upload Image", style: TextStyle(color: Colors.tealAccent, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
           children: <Widget>[
             SimpleDialogOption(
               child: Text("Capture Image with Camera", style: TextStyle(color: Colors.white), textAlign: TextAlign.center,),
@@ -119,70 +126,10 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
       },
     );
   }
-  
-  displayUploadScreen(){
-    return Container(
-      color: Theme.of(context).accentColor.withOpacity(0.5),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(Icons.add_photo_alternate, color: Colors.grey, size: 200.0,),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: RaisedButton(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0),),
-              child: Text("Upload Image", style: TextStyle(color: Colors.white, fontSize: 20.0),),
-              color: Colors.green,
-              onPressed: () => takeImage(context)
-            ),
-          ),
-        ],
-      ),
-    );
-      
-  }
 
-  displayUploadScreen2(){
-    return ListView(
-      children: <Widget>[
-        Container(
-          color: Theme.of(context).accentColor.withOpacity(0.5),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.add_photo_alternate, color: Colors.grey, size: 200.0,),
-              Padding(
-                padding: EdgeInsets.only(top: 30.0),
-                child: RaisedButton(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0),),
-                    child: Text("Upload Image", style: TextStyle(color: Colors.white, fontSize: 20.0),),
-                    color: Colors.green,
-                    onPressed: () => takeImage(context)
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          color: Theme.of(context).accentColor.withOpacity(0.5),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 20.0),
-                child: RaisedButton(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0),),
-                    child: Text("Add Description", style: TextStyle(color: Colors.white, fontSize: 20.0),),
-                    color: Colors.green,
-                    onPressed: displayUploadFormScreen2,
-                ),
-              ),
-            ],
-          ),
-        )
-      ],
-    );
-  }
+
+  
+
 
   clearPostInfo(){
     locationtextEditingController.clear();
@@ -241,7 +188,7 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
     postsReference.document(widget.gCurrentUser.id).collection("UsersPosts").document(postID).setData({
       "PostID" : postID,
       "OwnerID" : widget.gCurrentUser.id,
-      "Timestamp" : timestamp,
+      "Timestamp" : DateTime.now(),
       "Likes" : {},
       "Username" : widget.gCurrentUser.username,
       "Description" : description,
@@ -287,8 +234,8 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                 style: TextStyle(color: Colors.white),
                 controller: descriptiontextEditingController,
                 decoration: InputDecoration(
-                  hintText: "Description.",
-                  hintStyle: TextStyle(color: Colors.white),
+                  hintText: "Description...",
+                  hintStyle: TextStyle(color: Colors.white38),
                   border: InputBorder.none,
                 ),
               ),
@@ -300,10 +247,10 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
             title: Container(
               width: 250.0,
               child: TextField(
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white38),
                 controller: locationtextEditingController,
                 decoration: InputDecoration(
-                  hintText: "Location.",
+                  hintText: "Venue...",
                   hintStyle: TextStyle(color: Colors.white),
                   border: InputBorder.none,
                 ),
@@ -351,8 +298,8 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                 style: TextStyle(color: Colors.white),
                 controller: descriptiontextEditingController,
                 decoration: InputDecoration(
-                  hintText: "Description.",
-                  hintStyle: TextStyle(color: Colors.white),
+                  hintText: "Description...",
+                  hintStyle: TextStyle(color: Colors.white38),
                   border: InputBorder.none,
                 ),
               ),
@@ -367,8 +314,8 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
                 style: TextStyle(color: Colors.white),
                 controller: locationtextEditingController,
                 decoration: InputDecoration(
-                  hintText: "Location.",
-                  hintStyle: TextStyle(color: Colors.white),
+                  hintText: "Venue...",
+                  hintStyle: TextStyle(color: Colors.white38),
                   border: InputBorder.none,
                 ),
               ),
@@ -385,7 +332,19 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
               icon: Icon(Icons.arrow_downward, color: Colors.white,),
               onPressed: venues,
             ),
-          )
+          ),
+          Container(
+            width: 220.0,
+            height: 60.0,
+            alignment: Alignment.center,
+            child: RaisedButton.icon(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35.0)),
+              color: Colors.green,
+              label: Text("Upload Image", style: TextStyle(color: Colors.white),),
+              icon: Icon(Icons.arrow_upward, color: Colors.white,),
+              onPressed: () => takeImage(context),
+            ),
+          ),
         ],
       ),
     );
@@ -393,8 +352,140 @@ class _UploadPageState extends State<UploadPage> with AutomaticKeepAliveClientMi
 
 
   bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
-    return file == null ? displayUploadScreen2() : displayUploadFormScreen();
+    return file == null ? displayUploadFormScreen2() : displayUploadFormScreen();
+    /*displayUploadFormScreen2();
+    if(file==null)
+      {
+        return displayUploadFormScreen();
+      }*/
+
+
   }
 }
+
+/*returnRooms() async {
+  //var db = await openDatabase('class_schedule_4.db');
+  //var databasesPath = await getDatabasesPath();
+  /*print("he");
+    print(databasesPath);
+    print("fffffff");
+    io.Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    print(documentsDirectory);
+    print("pppppppppp");
+    String dpath = path.join(databasesPath, 'class_schedule_4.db');*/
+  String dpath = "C:/Users/hamza/Downloads/Compressed/buddies_gram/lib/pages/class_schedule_4";
+  print( dpath);
+  Database database = await openDatabase(dpath, version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(
+            'create table room (RNumber text PRIMARY KEY, RoomType text, Capacity integer)');
+      });
+  await database.transaction((txn) async {
+    int id1 = await txn.rawInsert(
+        'insert into room Values ("C301", "Classroom", 50)');
+    print('inserted1: $id1');
+  });
+  List<Map> list = await database.rawQuery('SELECT RNumber FROM room');
+  print(list);
+  roomsInDropDown();
+}
+
+roomsInDropDown() {
+  void initState(){
+    super.initState();
+    list = [];
+    DB.initialize().then((status){
+      if(status) {
+        DB.getData().then((listMap) {
+          listMap.map((map) {
+            print(map.toString());
+            return getDropDownWidget(map);
+          }).forEach ((dropDownItem) {
+            list.add(dropDownItem);
+          });
+          setState(() {
+
+          });
+        });
+      }
+    });
+  }
+
+
+}
+
+DropdownMenuItem<String> getDropDownWidget (Map<String, dynamic> map) {
+  return DropdownMenuItem<String>(
+    value: map['ITEM'],
+    child: Text(map['ITEM']),
+  );
+}
+
+  displayUploadScreen(){
+    return Container(
+      color: Theme.of(context).accentColor.withOpacity(0.5),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(Icons.add_photo_alternate, color: Colors.grey, size: 200.0,),
+          Padding(
+            padding: EdgeInsets.only(top: 20.0),
+            child: RaisedButton(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0),),
+              child: Text("Upload Image", style: TextStyle(color: Colors.white, fontSize: 20.0),),
+              color: Colors.green,
+              onPressed: () => takeImage(context)
+            ),
+          ),
+        ],
+      ),
+    );
+
+  }
+
+  displayUploadScreen2(){
+    return ListView(
+      children: <Widget>[
+        Container(
+          color: Theme.of(context).accentColor.withOpacity(0.5),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Icon(Icons.add_photo_alternate, color: Colors.grey, size: 200.0,),
+              Padding(
+                padding: EdgeInsets.only(top: 30.0),
+                child: RaisedButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0),),
+                    child: Text("Upload Image", style: TextStyle(color: Colors.white, fontSize: 20.0),),
+                    color: Colors.green,
+                    onPressed: () => takeImage(context)
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          color: Theme.of(context).accentColor.withOpacity(0.5),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 20.0),
+                child: RaisedButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9.0),),
+                    child: Text("Add Description", style: TextStyle(color: Colors.white, fontSize: 20.0),),
+                    color: Colors.green,
+                    onPressed: displayUploadFormScreen2,
+                ),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+ */
+

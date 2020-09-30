@@ -1,6 +1,11 @@
+
+import 'dart:io';
+
 import 'package:buddiesgram/models/user.dart';
 import 'package:buddiesgram/pages/CreateAccountPage.dart';
+import 'package:buddiesgram/widgets/ProgressWidget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +15,7 @@ import 'package:buddiesgram/pages/SearchPage.dart';
 import 'package:buddiesgram/pages/TimeLinePage.dart';
 import 'package:buddiesgram/pages/UploadPage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sqflite/sqflite.dart';
-import 'dart:async';
+
 
 
 final GoogleSignIn gSignIn = GoogleSignIn();
@@ -20,6 +24,11 @@ final DateTime timestamp = DateTime.now();
 User currentUser;
 final postsReference = Firestore.instance.collection("Posts");
 final StorageReference storageReference = FirebaseStorage.instance.ref().child("Posts Pictures");
+final followersReference = Firestore.instance.collection("Followers");
+final followingReference = Firestore.instance.collection("Following");
+final activityFeedReference = Firestore.instance.collection("Feed");
+final appointmentReference = Firestore.instance.collection("Appointments");
+final timelineReference = Firestore.instance.collection("Timeline");
 
 class HomePage extends StatefulWidget {
   @override
@@ -28,9 +37,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  bool loading = true;
   bool isSignedIn = false;
   PageController pageController;
   int getPageIndex = 0;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void initState(){
     super.initState();
@@ -40,13 +52,15 @@ class _HomePageState extends State<HomePage> {
     gSignIn.onCurrentUserChanged.listen((gSignInAccount){
       controlSignIn(gSignInAccount);
     }, onError: (gError){
-      print("Error Message: "+ gError);
+      //print("Error Message: "+ gError);
+      loading = false;
     });
 
     gSignIn.signInSilently(suppressErrors: false).then((gSignInAccount){
       controlSignIn(gSignInAccount);
     }).catchError((gError){
-      print("Error Message: "+ gError);
+      //print("Error Message: "+ gError);
+      loading = false;
     });
 
   }
@@ -57,7 +71,10 @@ class _HomePageState extends State<HomePage> {
       await saveInfo();
       setState(() {
         isSignedIn = true;
+        loading = false;
       });
+
+      configureRealTime();
     }
 
     else
@@ -67,6 +84,39 @@ class _HomePageState extends State<HomePage> {
       });
     }
 
+  }
+
+  configureRealTime(){
+    final GoogleSignInAccount googleSignInAccount = gSignIn.currentUser;
+    if(Platform.isIOS)
+      {
+        getIOSPermissions();
+      }
+    _firebaseMessaging.getToken().then((token) {
+      usersReference.document(googleSignInAccount.id).updateData({"androidNotificationToken": token});
+    });
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> msg) async {
+        final String recipentID = msg["data"]["recipent"];
+        final String body = msg["notfication"]["body"];
+
+        if(recipentID == googleSignInAccount.id)
+          {
+            SnackBar snackBar = SnackBar(
+              backgroundColor: Colors.grey,
+              content: Text(body, style: TextStyle(color: Colors.black), overflow: TextOverflow.ellipsis,),
+            );
+            _scaffoldKey.currentState.showSnackBar(snackBar);
+          }
+      },
+    );
+  }
+
+  getIOSPermissions(){
+    _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings(alert: true, badge: true, sound: true));
+    _firebaseMessaging.onIosSettingsRegistered.listen((settings) {
+      print("Settings Registered: $settings");
+    });
   }
 
   saveInfo() async{
@@ -85,6 +135,9 @@ class _HomePageState extends State<HomePage> {
       "bio": "",
       "timestamp": timestamp,
       });
+
+      await followersReference.document(gCurrentUser.id).collection("UserFollowers").document(gCurrentUser.id).setData({});
+
       documentSnapshot = await usersReference.document(gCurrentUser.id).get();
     }
     
@@ -117,9 +170,10 @@ class _HomePageState extends State<HomePage> {
 
   Scaffold buildHomeScreen(){
     return Scaffold(
+      key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          TimeLinePage(),
+          TimeLinePage(gCurrentUser: currentUser,),
           SearchPage(),
           UploadPage(gCurrentUser: currentUser,),
           NotificationsPage(),
@@ -169,16 +223,16 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             Text(
               "FASTAccess",
-              style: TextStyle(fontSize: 70.0, color: Colors.white, fontFamily: "Metallord"),
+              style: TextStyle(fontSize: 60.0, color: Colors.white, fontFamily: "Metallord"),
             ),
             GestureDetector(
               onTap: loginUser,
-              child: Container(
+              child: loading ? circularProgress() : Container(
                 width: 270.0,
                 height: 65.0,
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/images/google_signin_button.png"),
+                  image:  DecorationImage(
+                    image:  AssetImage("assets/images/google_signin_button.png"),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -202,6 +256,7 @@ class _HomePageState extends State<HomePage> {
       {
         return buildSignInScreen();
       }
+    //return buildHomeScreen();
   }
 }
 
