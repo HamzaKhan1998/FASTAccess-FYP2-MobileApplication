@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar header(context, {bool isAppTitle = false, String sTitle, dbb = false}) {
+AppBar header(context, {bool isAppTitle = false, String sTitle, dbb = false, String strTitle}) {
   return AppBar(
     iconTheme: IconThemeData(
       color: Colors.white,

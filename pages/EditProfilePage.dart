@@ -54,7 +54,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       biotextEditingController.text.trim().length > 20 ? _bioValid = false : _bioValid = true;
     });
 
-    if(_bioValid && _profileNameValid){
+    if(_bioValid && _profileNameValid){ 
       usersReference.document(widget.currentOnlineUserID).updateData({
         "profileName": profileNametextEditingController.text,
         "bio": biotextEditingController.text,
