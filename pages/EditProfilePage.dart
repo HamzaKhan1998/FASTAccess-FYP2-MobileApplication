@@ -1,6 +1,6 @@
-import 'package:buddiesgram/models/user.dart';
-import 'package:buddiesgram/pages/HomePage.dart';
-import 'package:buddiesgram/widgets/ProgressWidget.dart';
+import 'package:fast_access/models/user.dart';
+import 'package:fast_access/pages/HomePage.dart';
+import 'package:fast_access/widgets/ProgressWidget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
@@ -24,7 +24,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController biotextEditingController = TextEditingController();
   final _scaffoldGlobalKey = GlobalKey<ScaffoldState>();
   bool loading = false;
-  User user;
+  Userr user;
   bool _bioValid = true;
   bool _profileNameValid = true;
 
@@ -39,7 +39,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
 
     DocumentSnapshot documentSnapshot = await usersReference.document(widget.currentOnlineUserID).get();
-    user = User.fromDocument(documentSnapshot);
+    user = Userr.fromDocument(documentSnapshot);
     profileNametextEditingController.text = user.profileName;
     biotextEditingController.text = user.bio;
 
@@ -51,10 +51,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
   updateUserData(){
     setState(() {
       profileNametextEditingController.text.trim().length < 3 || profileNametextEditingController.text.isEmpty ? _profileNameValid = false : _profileNameValid = true;
-      biotextEditingController.text.trim().length > 20 ? _bioValid = false : _bioValid = true;
+      biotextEditingController.text.trim().length > 50 ? _bioValid = false : _bioValid = true;
     });
 
-    if(_bioValid && _profileNameValid){
+    if(_bioValid && _profileNameValid){ 
       usersReference.document(widget.currentOnlineUserID).updateData({
         "profileName": profileNametextEditingController.text,
         "bio": biotextEditingController.text,

@@ -1,6 +1,7 @@
-import 'package:buddiesgram/models/user.dart';
-import 'package:buddiesgram/pages/HomePage.dart';
-import 'package:buddiesgram/widgets/ProgressWidget.dart';
+import 'package:fast_access/models/user.dart';
+import 'package:fast_access/pages/HomePage.dart';
+import 'package:fast_access/pages/ProfilePage.dart';
+import 'package:fast_access/widgets/ProgressWidget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
 
   AppBar searchPageHeader(){
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       title: TextFormField(
         style: TextStyle(fontSize: 18.0, color: Colors.white),
         controller: searchTextEditingControl,
@@ -60,7 +61,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
             Text(
               "Search Users",
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 65.0),
+              style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w500, fontSize: 65.0),
             ),
           ],
         ),
@@ -78,7 +79,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
 
         List<UserResult> searchUserResult = [];
         dataSnapshot.data.documents.forEach((document) {
-          User eachUser = User.fromDocument(document);
+          Userr eachUser = Userr.fromDocument(document);
           UserResult userResult = UserResult(eachUser);
           searchUserResult.add(userResult);
         });
@@ -91,7 +92,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       appBar: searchPageHeader(),
       body: futureSearchResults == null ? displayNoSearchResultScreen() : displayUsersFoundScreen(),
     );
@@ -100,7 +101,7 @@ class _SearchPageState extends State<SearchPage> with AutomaticKeepAliveClientMi
 
 class UserResult extends StatelessWidget {
 
-  final User eachUser;
+  final Userr eachUser;
   UserResult(this.eachUser);
 
 
@@ -113,20 +114,24 @@ class UserResult extends StatelessWidget {
         child: Column(
           children: <Widget>[
             GestureDetector(
-              onTap: () => print("Tapped"),
+              onTap: () => displayUserProfile(context, gCurrentUser: eachUser, userProfileID: eachUser.id, userProfilePic: eachUser.url, userProfileUsername: eachUser.profileName,),
               child: ListTile(
                 leading: CircleAvatar(backgroundColor: Colors.black, backgroundImage: CachedNetworkImageProvider(eachUser.url),),
                 title: Text(eachUser.profileName, style: TextStyle(
                   color: Colors.black, fontSize: 16.0, fontWeight: FontWeight.bold,
                 ),),
-                subtitle: Text(eachUser.username, style: TextStyle(
-                  color: Colors.black, fontSize: 13.0,
-                ),),
+                // subtitle: Text(eachUser.username, style: TextStyle(
+                //   color: Colors.black, fontSize: 13.0,
+                // ),),
               ),
             ),
           ],
         ),
       ),
     );
+
+  }
+  displayUserProfile(BuildContext context, {Userr gCurrentUser, String userProfileID, String userProfilePic, String userProfileUsername}){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(gCurrentUser: gCurrentUser, userProfileID: userProfileID, userProfilePic: currentUser.url, userProfileUsername: currentUser.profileName,)));
   }
 }
